@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ระบบลงเวลาออนไลน์ อบต.หัวนา</title>
+    <link
+      rel="icon"
+      href="https://www.huana-nbp.go.th/index/add_file/qOv0r0dTue83729.png"
+      type="image/png"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Auto Complete -->
+    <link
+      rel="stylesheet"
+      href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ui.autocomplete.scroll@0.1.9/jquery.ui.autocomplete.scroll.min.js"></script>
+
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <!-- Style CSS -->
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=K2D&family=Kanit&family=Sriracha&display=swap");
+
+      * {
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        font-family: "Kanit", sans-serif;
+      }
+
+      body {
+        font-family: "Kanit", sans-serif;
+        color: #444;
+        background-color: white;
+        padding: 20px;
+        border: 2px solid white;
+        box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.5);
+        font-size: 1.05rem;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background-color: #92a8d1;
+        background: url("https://www.i-pic.info/i/BbiN536436.jpg") no-repeat
+          center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+
+      input#employee {
+        font-family: "Kanit", sans-serif;
+        width: 282px;
+        height: 60px;
+        background-color: brown;
+        color: yellow;
+        margin-block-start: 5px;
+        border-radius: 36px;
+        font-size: 20px;
+      }
+
+      .site-logo {
+        content: url("https://www.huana-nbp.go.th/index/add_file/qOv0r0dTue83729.png");
+        display: inline-block;
+        margin-top: 20px;
+        width: auto;
+        height: 100px;
+      }
+
+      .msgBg {
+        background-color: transparent;
+      }
+
+      .wrapper {
+        background: rgba(221, 255, 255, 0.7);
+        width: 350px;
+        padding: 20px;
+        border: 1px solid #999;
+        border-radius: 5px;
+        box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      /** #### digital clock #### **/
+      @font-face {
+        font-family: "Digital dream Fat";
+        src: url("https://semicon.github.io/fonts/DigitaldreamFat.woff2")
+            format("woff2"),
+          url("https://semicon.github.io/fonts/DigitaldreamFat.woff")
+            format("woff");
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      .clock {
+        font-family: Digital dream Fat;
+        font-size: 28px;
+        color: #00f6fa;
+        letter-spacing: 3px;
+        text-shadow: 1px 1px 2px teal, 0 0 25px green, 0 0 5px #00fbff;
+        min-width: 98%;
+        background: #444;
+        padding: 5px 0px 5px 10px;
+        display: inline-block;
+        border: 3px solid #ccc;
+        border-radius: 2px;
+        outline-style: solid;
+        outline-color: #999;
+      }
+
+      /* สไตล์สำหรับระบบคิว */
+      .queue-info {
+        background-color: rgba(230, 248, 255, 0.8);
+        border-radius: 5px;
+        padding: 12px;
+        margin-top: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .queue-info div {
+        margin-bottom: 5px;
+      }
+
+      .progress {
+        height: 20px;
+        border-radius: 10px;
+        background-color: #e6e6e6;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        line-height: 20px;
+        transition: width 0.5s;
+      }
+
+      .waiting-number {
+        font-size: 28px;
+        font-weight: bold;
+        color: #ff6600;
+        background-color: #fff8e0;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        margin: 0 auto 15px auto;
+        border: 2px solid #ffcc00;
+      }
+
+      /* สไตล์สำหรับหน้าต่างแสดงสถานะคิว */
+      .queue-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .queue-modal-content {
+        background-color: #fff;
+        width: 90%;
+        max-width: 400px;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+
+  <!-- Time Tracker HTML Body -->
+  <body>
+    <div class="wrapper text-center" style="max-width: 350px">
+      <div class="site-logo text-center"></div>
+      <h5>ระบบลงเวลาออนไลน์ อบต.หัวนา</h5>
+
+      <span id="MyClockDisplay" class="clock mt-3" onload="showTime()"></span>
+
+      <form id="myForm">
+        <div class="row mt-4">
+          <div class="form-group col">
+            <label for="employee">พิมพ์ชื่อหรือรหัส</label>
+            <input id="employee" class="text-center" />
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="form-group col">
+            <label for="lblinfo"
+              ><i class="fas fa-book-reader"></i> หมายเหตุ:ประชุม/กิจกรรม
+              อื่นๆ</label
+            >
+            <input
+              type="search"
+              class="form-control form-control-lg"
+              id="userinfo"
+              name="userinfo"
+              list="list"
+            />
+            <datalist id="list">
+              <option value="ไปราชการ">ไปราชการ</option>
+              <option value="ลากิจ">ลากิจ</option>
+              <option value="ลาป่วย">ลาป่วย</option>
+              <option value="ลาคลอด">ลาคลอด</option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="row mt-4 g-2">
+          <div class="col-6">
+            <button
+              id="clockin"
+              type="button"
+              class="btn btn-lg btn-primary w-100"
+            >
+              Clock In
+            </button>
+          </div>
+          <div class="col-6">
+            <button
+              id="clockout"
+              type="button"
+              class="btn btn-lg btn-warning w-100"
+            >
+              Clock Out
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="form-group col">
+            <div class="alert" role="alert" id="message"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // URL ของสคริปต์ Apps Script (ต้องเปลี่ยนเป็น URL ที่ได้จากการ deploy)
+      var scripturl =
+        "https://script.google.com/macros/s/AKfycbwm3dlyVLLOKoEPamIXqltJ0jCVUpOXnINqQ2iQLLcsTeQh6w-OuoDQIkvIk7VBObuM/exec";
+      var owner = "องค์การบริหารส่วนตำบลหัวนา";
+
+      // ตัวแปร global
+      var profile, gps;
+
+      // ดึงตำแหน่ง GPS
+      $.when(getlocation()).done(function (res) {
+        console.log("GPS:", gps);
+      });
+
+      $(document).ready(function () {
+        // ประกาศตัวแปร profile ที่ระดับสูงกว่า
+        let profile = null;
+
+        // ตั้งค่าการทำงานของปุ่ม
+        $("#clockin").click(() => ClockIn());
+        $("#clockout").click(() => ClockOut());
+
+        // เริ่มต้นใช้งาน LIFF (LINE Frontend Framework)
+        liff.init({
+          liffId: "2006445603-aO8PqngE",
+          withLoginOnExternalBrowser: true,
+        });
+
+        liff.ready.then(() => {
+          // ดึงข้อมูลโปรไฟล์
+          profile = liff.getDecodedIDToken();
+
+          if (profile) {
+            console.log("User ID (sub):", profile.sub);
+            console.log("Display Name (name):", profile.name);
+            console.log("Email:", profile.email || "ไม่พบอีเมล");
+            console.log("Picture URL:", profile.picture || "ไม่พบรูปโปรไฟล์");
+          } else {
+            console.log("โปรไฟล์ยังไม่พร้อมใช้งานหรือไม่มีข้อมูลโปรไฟล์");
+          }
+
+          // เรียกฟังก์ชัน initApp หลังจากได้โปรไฟล์แล้ว
+          initApp();
+        });
+
+        function initApp() {
+          // แสดงชื่อองค์กร
+          document.getElementById("message").innerText = owner;
+          document.getElementById("message").className = "alert msgBg";
+
+          // ดึงข้อมูลพนักงานมาแสดงในแถบเลือกรายการ
+          $.ajax({
+            method: "POST",
+            url: scripturl,
+            data: {
+              opt: "getdata",
+            },
+            success: function (dataPerson) {
+              console.log("Employee data:", dataPerson);
+              $(function () {
+                var availableTags = dataPerson;
+                $("#employee").autocomplete({
+                  maxShowItems: 3,
+                  source: availableTags,
+                });
+              });
+            },
+          });
+
+          getEmployees();
+        }
+      });
+
+      // ฟังก์ชั่นดึงข้อมูลพนักงาน
+      function getEmployees() {
+        $.ajax({
+          method: "POST",
+          url: scripturl,
+          data: {
+            opt: "getemployee",
+          },
+          success: function (ar) {
+            var employeeSelect = document.getElementById("employee");
+
+            let option = document.createElement("option");
+            option.value = "";
+            option.text = "";
+            employeeSelect.appendChild(option);
+
+            ar.forEach(function (item, index) {
+              let option = document.createElement("option");
+              var employee = item[0];
+              option.value = item[0];
+              option.text = item[0];
+              employeeSelect.appendChild(option);
+            });
+          },
+        });
+      }
+
+      // ฟังก์ชั่นตรวจสอบสถานะคิว
+      function checkQueueStatus(employeeName) {
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            method: "POST",
+            url: scripturl,
+            data: {
+              opt: "checkqueue",
+              employee: employeeName,
+            },
+            success: function (response) {
+              if (response.msg === "SUCCESS") {
+                resolve(response.status);
+              } else {
+                reject(new Error(response.error || "ไม่สามารถตรวจสอบคิวได้"));
+              }
+            },
+            error: function (err) {
+              reject(err);
+            },
+          });
+        });
+      }
+
+      // แสดงข้อความแจ้งเตือนสถานะคิว
+      function showQueueStatus(status) {
+        let message = "";
+
+        if (status.inQueue) {
+          message = `
+            <div class="queue-info">
+              <div><strong>หมายเลขคิวของคุณ:</strong> ${
+                status.queueNumber
+              }</div>
+              <div><strong>ตำแหน่งในคิว:</strong> ${status.position} จาก ${
+            status.total
+          }</div>
+              <div><strong>เวลารอโดยประมาณ:</strong> ${
+                status.estimated
+              } วินาที</div>
+              <div class="progress mt-2">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                     style="width: ${Math.round(
+                       100 - (status.position / status.total) * 100
+                     )}%" 
+                     aria-valuenow="${
+                       status.position
+                     }" aria-valuemin="0" aria-valuemax="${status.total}"></div>
+              </div>
+            </div>
+          `;
+        } else {
+          message = "คุณไม่ได้อยู่ในคิว";
+        }
+
+        $("#message").html(message);
+        document.getElementById("message").className = "alert alert-info";
+      }
+
+      // ฟังก์ชั่นตรวจสอบสถานะคิวเป็นระยะ
+      function pollQueueStatus(employeeName) {
+        // ตั้งค่าตัวแปร global เพื่อให้หยุดการทำงานได้
+        window.queuePollInterval = setInterval(async () => {
+          try {
+            const status = await checkQueueStatus(employeeName);
+
+            // ถ้าไม่ได้อยู่ในคิวแล้ว แสดงว่าทำงานเสร็จแล้ว
+            if (!status.inQueue) {
+              clearInterval(window.queuePollInterval);
+              // แสดงข้อความว่าเสร็จสิ้นแล้ว
+              $("#message").html("การลงเวลาเสร็จสิ้นแล้ว");
+              document.getElementById("message").className =
+                "alert alert-success";
+              setTimeout(() => {
+                // รีเฟรชหน้าเพื่อดูผลลัพธ์ล่าสุด
+                location.reload();
+              }, 2000);
+              return;
+            }
+
+            // อัปเดตแถบแสดงสถานะคิว
+            showQueueStatus(status);
+
+            // ถ้าเป็นคนแรกในคิว ตรวจสอบบ่อยขึ้น
+            if (status.position === 1) {
+              clearInterval(window.queuePollInterval);
+              window.queuePollInterval = setInterval(async () => {
+                const updatedStatus = await checkQueueStatus(employeeName);
+                if (!updatedStatus.inQueue) {
+                  clearInterval(window.queuePollInterval);
+                  // แสดงข้อความว่าเสร็จสิ้นแล้ว
+                  $("#message").html("การลงเวลาเสร็จสิ้นแล้ว");
+                  document.getElementById("message").className =
+                    "alert alert-success";
+                  setTimeout(() => {
+                    // รีเฟรชหน้าเพื่อดูผลลัพธ์ล่าสุด
+                    location.reload();
+                  }, 2000);
+                } else {
+                  showQueueStatus(updatedStatus);
+                }
+              }, 500); // ตรวจสอบทุก 0.5 วินาที เมื่อใกล้ถึงคิวของตัวเอง
+            }
+          } catch (error) {
+            console.error("Error polling queue:", error);
+          }
+        }, 2000); // ตรวจสอบทุก 2 วินาที
+      }
+
+      // ฟังก์ชัน Clock In
+      async function ClockIn() {
+        event.preventDefault();
+
+        var employee = document.getElementById("employee").value;
+        var userinfo = document.getElementById("userinfo").value;
+
+        if (employee !== "") {
+          $("#message").html(
+            "<span class='spinner-border spinner-border-sm text-primary'></span> กำลังตรวจสอบคิว..."
+          );
+
+          profile = liff.getDecodedIDToken(); // ดึงข้อมูลโปรไฟล์
+
+          // เรียกใช้ฟังก์ชัน clockin ที่มีระบบคิว
+          $.ajax({
+            method: "POST",
+            url: scripturl,
+            data: {
+              opt: "clockin",
+              employee,
+              userinfo,
+              lat: gps[0],
+              lon: gps[1],
+              line_name: profile.name,
+              line_picture: profile.picture,
+            },
+            success: function (res) {
+              console.log(res);
+
+              // ถ้าอยู่ในคิว
+              if (res.msg === "QUEUED") {
+                // แสดงข้อมูลคิว
+                const queueMessage = `
+                  <div class="queue-info">
+                    <div class="text-center mb-2"><strong>คุณถูกจัดลำดับคิวแล้ว</strong></div>
+                    <div><strong>หมายเลขคิวของคุณ:</strong> ${
+                      res.queueNumber
+                    }</div>
+                    <div><strong>ตำแหน่งในคิว:</strong> ${res.position} จาก ${
+                  res.total
+                }</div>
+                    <div><strong>เวลารอโดยประมาณ:</strong> ${
+                      res.estimated
+                    } วินาที</div>
+                    <div class="progress mt-2">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                           style="width: ${Math.round(
+                             100 - (res.position / res.total) * 100
+                           )}%" 
+                           aria-valuenow="${
+                             res.position
+                           }" aria-valuemin="0" aria-valuemax="${
+                  res.total
+                }"></div>
+                    </div>
+                  </div>
+                `;
+
+                $("#message").html(queueMessage);
+                document.getElementById("message").className =
+                  "alert alert-info";
+
+                // เริ่มตรวจสอบสถานะคิวเป็นระยะ
+                pollQueueStatus(employee);
+              } else if (res.msg === "PROCESSING") {
+                // ถ้ากำลังประมวลผล
+                $("#message").html(
+                  `<span class='spinner-border spinner-border-sm text-primary'></span> กำลังประมวลผลคำขอของคุณ โปรดรอสักครู่...`
+                );
+                document.getElementById("message").className =
+                  "alert alert-info";
+
+                // เริ่มตรวจสอบสถานะคิวเป็นระยะ
+                pollQueueStatus(employee);
+              } else if (res.msg === "SUCCESS") {
+                // ถ้าทำงานสำเร็จทันที (ไม่ต้องรอคิว)
+                var message =
+                  res.employee + "<br> บันทึกเวลามา " + res.return_date;
+                $("#message").html(message);
+                document.getElementById("message").className =
+                  "alert alert-primary";
+
+                // ส่งการแจ้งเตือน LINE Notify (ถ้ามี)
+                if (res.token && res.message) {
+                  $.ajax({
+                    method: "POST",
+                    url: scripturl,
+                    data: {
+                      opt: "sendnotify",
+                      message: res.message,
+                      token: res.token,
+                      lat: gps[0],
+                      lon: gps[1],
+                    },
+                  });
+                }
+
+                clearForm();
+              } else {
+                var message = res.employee + " " + res.msg;
+                $("#message").html(message);
+                document.getElementById("message").className =
+                  "alert alert-warning";
+                clearForm();
+              }
+            },
+            error: function (err) {
+              $("#message").html("เกิดข้อผิดพลาดในการติดต่อกับเซิร์ฟเวอร์");
+              document.getElementById("message").className =
+                "alert alert-danger";
+            },
+          });
+        } else {
+          //แสดงแจ้งเตือนถ้ายังไม่เลือกรายชื่อ
+          $("#message").html("กรุณาเลือกรายชื่อพนักงาน ...!");
+          document.getElementById("message").className =
+            "alert alert-warning text-danger";
+          clearForm();
+        }
+      }
+
+      // ฟังก์ชัน Clock Out
+      async function ClockOut() {
+        event.preventDefault();
+
+        var employee = document.getElementById("employee").value;
+
+        if (employee !== "") {
+          $("#message").html(
+            "<span class='spinner-border spinner-border-sm text-warning'></span> กำลังตรวจสอบคิว..."
+          );
+
+          profile = liff.getDecodedIDToken(); // ดึงข้อมูลโปรไฟล์
+
+          // เรียกใช้ฟังก์ชัน clockout ที่มีระบบคิว
+          $.ajax({
+            method: "POST",
+            url: scripturl,
+            data: {
+              opt: "clockout",
+              employee,
+              lat: gps[0],
+              lon: gps[1],
+              line_name: profile.name,
+              line_picture: profile.picture,
+            },
+            success: function (res) {
+              console.log(res);
+
+              // ถ้าอยู่ในคิว
+              if (res.msg === "QUEUED") {
+                // แสดงข้อมูลคิว
+                const queueMessage = `
+                  <div class="queue-info">
+                    <div class="text-center mb-2"><strong>คุณถูกจัดลำดับคิวแล้ว</strong></div>
+                    <div><strong>หมายเลขคิวของคุณ:</strong> ${
+                      res.queueNumber
+                    }</div>
+                    <div><strong>ตำแหน่งในคิว:</strong> ${res.position} จาก ${
+                  res.total
+                }</div>
+                    <div><strong>เวลารอโดยประมาณ:</strong> ${
+                      res.estimated
+                    } วินาที</div>
+                    <div class="progress mt-2">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                           style="width: ${Math.round(
+                             100 - (res.position / res.total) * 100
+                           )}%" 
+                           aria-valuenow="${
+                             res.position
+                           }" aria-valuemin="0" aria-valuemax="${
+                  res.total
+                }"></div>
+                    </div>
+                  </div>
+                `;
+
+                $("#message").html(queueMessage);
+                document.getElementById("message").className =
+                  "alert alert-info";
+
+                // เริ่มตรวจสอบสถานะคิวเป็นระยะ
+                pollQueueStatus(employee);
+              } else if (res.msg === "PROCESSING") {
+                // ถ้ากำลังประมวลผล
+                $("#message").html(
+                  `<span class='spinner-border spinner-border-sm text-warning'></span> กำลังประมวลผลคำขอของคุณ โปรดรอสักครู่...`
+                );
+                document.getElementById("message").className =
+                  "alert alert-info";
+
+                // เริ่มตรวจสอบสถานะคิวเป็นระยะ
+                pollQueueStatus(employee);
+              } else if (res.msg === "SUCCESS") {
+                // ถ้าทำงานสำเร็จทันที (ไม่ต้องรอคิว)
+                var message =
+                  res.employee + "<br> บันทึกเวลากลับ " + res.return_date;
+                $("#message").html(message);
+                document.getElementById("message").className =
+                  "alert alert-primary";
+
+                // ส่งการแจ้งเตือน LINE Notify (ถ้ามี)
+                if (res.token && res.message) {
+                  $.ajax({
+                    method: "POST",
+                    url: scripturl,
+                    data: {
+                      opt: "sendnotify",
+                      message: res.message,
+                      token: res.token,
+                      lat: gps[0],
+                      lon: gps[1],
+                    },
+                  });
+                }
+
+                clearForm();
+              } else {
+                var message = res.employee + " " + res.msg;
+                $("#message").html(message);
+                document.getElementById("message").className =
+                  "alert alert-warning";
+                clearForm();
+              }
+            },
+            error: function (err) {
+              $("#message").html("เกิดข้อผิดพลาดในการติดต่อกับเซิร์ฟเวอร์");
+              document.getElementById("message").className =
+                "alert alert-danger";
+            },
+          });
+        } else {
+          //แสดงแจ้งเตือนถ้ายังไม่เลือกรายชื่อ
+          $("#message").html("กรุณาเลือกรายชื่อพนักงาน ...!");
+          document.getElementById("message").className =
+            "alert alert-warning text-danger";
+          clearForm();
+        }
+      }
+
+      // ฟังก์ชั่นเพื่อหยุดการตรวจสอบคิวเมื่อผู้ใช้ออกจากหน้า
+      $(window).on("beforeunload", function () {
+        if (window.queuePollInterval) {
+          clearInterval(window.queuePollInterval);
+        }
+      });
+
+      // ตำแหน่งทางภูมิศาสตร์ - ละติจูด/ลองจิจูด
+      function getlocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            showPosition,
+            getLocationFromApi
+          );
+        } else {
+          console.log("Geolocation is not supported by this browser.");
+        }
+      }
+
+      function showPosition(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        gps = [lat, lon];
+        console.log("Latitude: " + lat + " Longitude: " + lon);
+      }
+
+      function getLocationFromApi() {
+        $.getJSON("https://ipapi.co/json/", function (data) {
+          var lat = data.latitude;
+          var lon = data.longitude;
+          gps = [lat, lon];
+          console.log("Latitude from API: " + lat + " Longitude: " + lon);
+        });
+      }
+
+      // ล้างแบบฟอร์มหลังจากส่งข้อมูล
+      function clearForm() {
+        setTimeout(function () {
+          document.getElementById("message").innerText = owner;
+          document.getElementById("message").className = "alert msgBg";
+          document.getElementById("myForm").reset();
+        }, 5000);
+      }
+
+      // นาฬิกาดิจิตอล
+      function showTime() {
+        var date = new Date();
+        var h = date.getHours(); // 0 - 23
+        var m = date.getMinutes(); // 0 - 59
+        var s = date.getSeconds(); // 0 - 59
+        var dot = (document.textContent = ".");
+
+        if (s % 2 == 1) {
+          dot = document.textContent = ".";
+        } else {
+          dot = document.textContent = "\xa0";
+        }
+
+        h = h < 10 ? "0" + h : h;
+        m = m < 10 ? "0" + m : m;
+        s = s < 10 ? "0" + s : s;
+
+        var time = h + ":" + m + ":" + s + "" + dot;
+        document.getElementById("MyClockDisplay").innerText = time;
+        document.getElementById("MyClockDisplay").textContent = time;
+
+        setTimeout(showTime, 1000);
+      }
+
+      showTime();
+    </script>
+    <script
+      charset="utf-8"
+      src="https://static.line-scdn.net/liff/edge/2/sdk.js"
+    ></script>
+  </body>
+</html>
