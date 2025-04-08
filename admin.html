@@ -107,6 +107,27 @@
         height: 80px;
       }
 
+      .nav-tabs .nav-link {
+        color: #495057;
+      }
+
+      .nav-tabs .nav-link.active {
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .admin-section {
+        padding: 20px;
+      }
+
+      .report-card {
+        border-left: 5px solid #28a745;
+      }
+
+      .system-card {
+        border-left: 5px solid #dc3545;
+      }
+
       @media (max-width: 768px) {
         .container {
           padding: 0 10px;
@@ -127,99 +148,266 @@
         style="display: none"
       ></div>
 
-      <!-- สถิติภาพรวมของคิว -->
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="card stats-card">
-            <h5>จำนวนคิวรอดำเนินการ</h5>
-            <div class="stats-number" id="waiting-count">0</div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stats-card">
-            <h5>กำลังดำเนินการ</h5>
-            <div class="stats-number" id="in-progress">0</div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card stats-card">
-            <h5>ดำเนินการแล้วทั้งหมด</h5>
-            <div class="stats-number" id="total-processed">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- รายการคิวปัจจุบัน -->
-      <div class="card">
-        <div class="card-header">
-          รายการคิวรอดำเนินการ
-          <button
-            class="btn btn-sm btn-light refresh-btn"
-            onclick="fetchQueueData()"
-          >
-            <i class="bi bi-arrow-clockwise"></i> รีเฟรช
+      <!-- แท็บตัวเลือกการจัดการ -->
+      <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue-management" type="button" role="tab" aria-controls="queue-management" aria-selected="true">
+            <i class="bi bi-list-ol"></i> จัดการคิว
           </button>
-        </div>
-        <div class="queue-container" id="queue-list">
-          <!-- รายการคิวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
-          <div class="text-center text-muted p-5">กำลังโหลดข้อมูล...</div>
-        </div>
-      </div>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-management" type="button" role="tab" aria-controls="report-management" aria-selected="false">
+            <i class="bi bi-file-earmark-text"></i> รายงาน
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system-management" type="button" role="tab" aria-controls="system-management" aria-selected="false">
+            <i class="bi bi-gear"></i> ตั้งค่าระบบ
+          </button>
+        </li>
+      </ul>
 
-      <!-- ตัวเลือกสำหรับผู้ดูแลระบบ -->
-      <div class="card">
-        <div class="card-header">การจัดการคิว</div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
+      <!-- เนื้อหาของแต่ละแท็บ -->
+      <div class="tab-content" id="adminTabContent">
+        <!-- แท็บจัดการคิว -->
+        <div class="tab-pane fade show active" id="queue-management" role="tabpanel" aria-labelledby="queue-tab">
+          <!-- สถิติภาพรวมของคิว -->
+          <div class="row mb-4 mt-4">
+            <div class="col-md-4">
+              <div class="card stats-card">
+                <h5>จำนวนคิวรอดำเนินการ</h5>
+                <div class="stats-number" id="waiting-count">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card stats-card">
+                <h5>กำลังดำเนินการ</h5>
+                <div class="stats-number" id="in-progress">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card stats-card">
+                <h5>ดำเนินการแล้วทั้งหมด</h5>
+                <div class="stats-number" id="total-processed">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- รายการคิวปัจจุบัน -->
+          <div class="card">
+            <div class="card-header">
+              รายการคิวรอดำเนินการ
               <button
-                class="btn btn-primary w-100 mb-2"
-                onclick="processSingleQueue()"
+                class="btn btn-sm btn-light refresh-btn"
+                onclick="fetchQueueData()"
               >
-                ประมวลผลคิวถัดไปทันที
+                <i class="bi bi-arrow-clockwise"></i> รีเฟรช
               </button>
             </div>
-            <div class="col-md-6">
-              <button
-                class="btn btn-danger w-100 mb-2"
-                onclick="clearAllQueue()"
-              >
-                ล้างข้อมูลคิวทั้งหมด
-              </button>
+            <div class="queue-container" id="queue-list">
+              <!-- รายการคิวจะถูกเพิ่มที่นี่ด้วย JavaScript -->
+              <div class="text-center text-muted p-5">กำลังโหลดข้อมูล...</div>
+            </div>
+          </div>
+
+          <!-- ตัวเลือกสำหรับผู้ดูแลระบบ -->
+          <div class="card">
+            <div class="card-header">การจัดการคิว</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-primary w-100 mb-2"
+                    onclick="processSingleQueue()"
+                  >
+                    <i class="bi bi-play-fill"></i> ประมวลผลคิวถัดไปทันที
+                  </button>
+                </div>
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-warning w-100 mb-2"
+                    onclick="processAllQueues()"
+                  >
+                    <i class="bi bi-fast-forward-fill"></i> ประมวลผลคิวทั้งหมด
+                  </button>
+                </div>
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-danger w-100 mb-2"
+                    onclick="clearAllQueue()"
+                  >
+                    <i class="bi bi-trash"></i> ล้างข้อมูลคิวทั้งหมด
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- บันทึกกิจกรรมคิว -->
+          <div class="card">
+            <div class="card-header">บันทึกกิจกรรมล่าสุด</div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>เวลา</th>
+                      <th>ชื่อพนักงาน</th>
+                      <th>ประเภท</th>
+                      <th>สถานะ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="queue-logs">
+                    <tr>
+                      <td colspan="4" class="text-center">กำลังโหลดข้อมูล...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- บันทึกกิจกรรมคิว -->
-      <div class="card">
-        <div class="card-header">บันทึกกิจกรรมล่าสุด</div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>เวลา</th>
-                  <th>ชื่อพนักงาน</th>
-                  <th>ประเภท</th>
-                  <th>สถานะ</th>
-                </tr>
-              </thead>
-              <tbody id="queue-logs">
-                <tr>
-                  <td colspan="4" class="text-center">กำลังโหลดข้อมูล...</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- แท็บจัดการรายงาน -->
+        <div class="tab-pane fade" id="report-management" role="tabpanel" aria-labelledby="report-tab">
+          <div class="admin-section">
+            <div class="card report-card">
+              <div class="card-header">รายงานประจำเดือน</div>
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="generateMonthlyReport()">
+                      <i class="bi bi-file-earmark-spreadsheet"></i> สร้างรายงานประจำเดือนนี้
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button class="btn btn-info w-100 mb-2" onclick="openMonthlyReportSheet()">
+                      <i class="bi bi-eye"></i> เปิดดูรายงานล่าสุด
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">เดือน</span>
+                      <select class="form-select" id="report-month">
+                        <option value="0">มกราคม</option>
+                        <option value="1">กุมภาพันธ์</option>
+                        <option value="2">มีนาคม</option>
+                        <option value="3">เมษายน</option>
+                        <option value="4">พฤษภาคม</option>
+                        <option value="5">มิถุนายน</option>
+                        <option value="6">กรกฎาคม</option>
+                        <option value="7">สิงหาคม</option>
+                        <option value="8">กันยายน</option>
+                        <option value="9">ตุลาคม</option>
+                        <option value="10">พฤศจิกายน</option>
+                        <option value="11">ธันวาคม</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">ปี</span>
+                      <select class="form-select" id="report-year">
+                        <!-- จะถูกเติมโดย JavaScript -->
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="generateCustomReport()">
+                  <i class="bi bi-file-earmark-spreadsheet"></i> สร้างรายงานตามเดือนและปีที่เลือก
+                </button>
+              </div>
+            </div>
+
+            <div class="card report-card mt-4">
+              <div class="card-header">รายงานสรุปการทำงาน</div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="generateEmployeeSummaryReport()">
+                      <i class="bi bi-people"></i> รายงานสรุปรายพนักงาน
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="calculateTotalHoursAndShow()">
+                      <i class="bi bi-clock-history"></i> สรุปชั่วโมงทำงานทั้งหมด
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- แท็บตั้งค่าระบบ -->
+        <div class="tab-pane fade" id="system-management" role="tabpanel" aria-labelledby="system-tab">
+          <div class="admin-section">
+            <div class="card system-card">
+              <div class="card-header">ตั้งค่าระบบ</div>
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <button class="btn btn-primary w-100 mb-2" onclick="setupSystem()">
+                      <i class="bi bi-gear"></i> ตั้งค่าระบบใหม่
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button class="btn btn-warning w-100 mb-2" onclick="setupOnWorkSheet()">
+                      <i class="bi bi-table"></i> ตั้งค่าชีต ON WORK ใหม่
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card system-card mt-4">
+              <div class="card-header">ตั้งค่าการแจ้งเตือน Telegram</div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="telegram-token" class="form-label">Telegram Bot Token:</label>
+                  <input type="text" class="form-control" id="telegram-token" placeholder="ใส่ Token ของ Telegram Bot">
+                </div>
+                <div class="mb-3">
+                  <label for="telegram-chatid" class="form-label">Telegram Chat ID:</label>
+                  <input type="text" class="form-control" id="telegram-chatid" placeholder="ใส่ Chat ID ของกลุ่มหรือบุคคล">
+                </div>
+                <button class="btn btn-primary w-100" onclick="setupTelegramNotification()">
+                  <i class="bi bi-telegram"></i> บันทึกการตั้งค่า Telegram
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- โมดัลแสดงผลลัพธ์ -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resultModalLabel">ผลการดำเนินการ</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="resultModalBody">
+            <!-- ข้อความผลลัพธ์จะปรากฏที่นี่ -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       // URL ของสคริปต์ Apps Script (ต้องเปลี่ยนเป็น URL ที่ได้จากการ deploy)
       const scriptUrl =
-        "https://script.google.com/macros/s/AKfycbxfq1tRERboFr2hbsA9P0i66A5Atjbp42M4AP4rSoOFGOo6ZZBxN3GfTOilYnu26VxtWw/exec";
+        "https://script.google.com/macros/s/AKfycbymknVmqRtRj6NqFB9jeVQgSY9Wqg_rp0rs223tD4_BVD5hhOpWPBxeFfHS7IH1zFLpFA/exec";
 
       // ดึงข้อมูลคิวล่าสุด
       function fetchQueueData() {
@@ -396,6 +584,29 @@
         });
       }
 
+      // ประมวลผลคิวทั้งหมด
+      function processAllQueues() {
+        if (!confirm("ต้องการประมวลผลคิวทั้งหมดหรือไม่?")) {
+          return;
+        }
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "processAllQueues",
+          },
+          success: function (response) {
+            showStatusMessage("เริ่มประมวลผลคิวทั้งหมดแล้ว", "success");
+            fetchQueueData();
+          },
+          error: function (error) {
+            console.error("Error processing all queues:", error);
+            showStatusMessage("เกิดข้อผิดพลาดในการประมวลผลคิว", "danger");
+          },
+        });
+      }
+
       // ล้างข้อมูลคิวทั้งหมด
       function clearAllQueue() {
         if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลคิวทั้งหมด?")) {
@@ -419,27 +630,233 @@
         });
       }
 
-      // แสดงข้อความสถานะ
-      function showStatusMessage(message, type) {
-        const statusElement = $("#status-message");
-        statusElement
-          .removeClass("alert-success alert-warning alert-danger")
-          .addClass(`alert-${type}`)
-          .text(message)
-          .show();
-
-        setTimeout(() => {
-          statusElement.hide();
-        }, 5000);
+      // สร้างรายงานประจำเดือน
+      function generateMonthlyReport() {
+        showLoading("กำลังสร้างรายงานประจำเดือน...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "generateMonthlyReport",
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("สร้างรายงานสำเร็จ", response.message);
+            } else {
+              showResultModal("ไม่สามารถสร้างรายงานได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error generating report:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถสร้างรายงานได้");
+          },
+        });
       }
 
-      // โหลดข้อมูลคิวเมื่อเปิดหน้า
-      $(document).ready(function () {
-        fetchQueueData();
+      // สร้างรายงานตามเดือนและปีที่เลือก
+      function generateCustomReport() {
+        const month = $("#report-month").val();
+        const year = $("#report-year").val();
+        
+        showLoading(`กำลังสร้างรายงานประจำเดือน ${$("#report-month option:selected").text()} ${year}...`);
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "generateCustomReport",
+            month: month,
+            year: year
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("สร้างรายงานสำเร็จ", response.message);
+            } else {
+              showResultModal("ไม่สามารถสร้างรายงานได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error generating custom report:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถสร้างรายงานได้");
+          },
+        });
+      }
 
-        // รีเฟรชข้อมูลทุก 10 วินาที
-        setInterval(fetchQueueData, 10000);
-      });
-    </script>
-  </body>
-</html>
+      // สร้างรายงานสรุปรายพนักงาน
+      function generateEmployeeSummaryReport() {
+        showLoading("กำลังสร้างรายงานสรุปรายพนักงาน...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "generateEmployeeSummaryReport",
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("สร้างรายงานสำเร็จ", response.message);
+            } else {
+              showResultModal("ไม่สามารถสร้างรายงานได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error generating employee report:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถสร้างรายงานได้");
+          },
+        });
+      }
+
+      // คำนวณชั่วโมงทำงานทั้งหมดและแสดงผล
+      function calculateTotalHoursAndShow() {
+        showLoading("กำลังคำนวณชั่วโมงทำงานทั้งหมด...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "calculateTotalHours",
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("คำนวณชั่วโมงทำงานเรียบร้อย", response.message);
+            } else {
+              showResultModal("ไม่สามารถคำนวณชั่วโมงทำงานได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error calculating hours:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถคำนวณชั่วโมงทำงานได้");
+          },
+        });
+      }
+      
+      // เปิดชีตรายงานประจำเดือน
+      function openMonthlyReportSheet() {
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "getReportSheetUrl",
+          },
+          success: function (response) {
+            if (response.success && response.url) {
+              window.open(response.url, '_blank');
+            } else {
+              showStatusMessage("ไม่พบชีตรายงาน", "warning");
+            }
+          },
+          error: function (error) {
+            console.error("Error opening report sheet:", error);
+            showStatusMessage("เกิดข้อผิดพลาดในการเปิดชีตรายงาน", "danger");
+          },
+        });
+      }
+      
+      // ตั้งค่าระบบใหม่
+      function setupSystem() {
+        if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการตั้งค่าระบบใหม่? การดำเนินการนี้จะล้างคิวทั้งหมดและตั้งค่าชีต ON WORK ใหม่")) {
+          return;
+        }
+        
+        showLoading("กำลังตั้งค่าระบบใหม่...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "setupSystem",
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("ตั้งค่าระบบสำเร็จ", response.message);
+              fetchQueueData();
+            } else {
+              showResultModal("ไม่สามารถตั้งค่าระบบได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error setting up system:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถตั้งค่าระบบได้");
+          },
+        });
+      }
+      
+      // ตั้งค่าชีต ON WORK ใหม่
+      function setupOnWorkSheet() {
+        if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการตั้งค่าชีต ON WORK ใหม่?")) {
+          return;
+        }
+        
+        showLoading("กำลังตั้งค่าชีต ON WORK ใหม่...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "setupOnWorkSheet",
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("ตั้งค่าชีตสำเร็จ", response.message);
+            } else {
+              showResultModal("ไม่สามารถตั้งค่าชีตได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error setting up ON WORK sheet:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถตั้งค่าชีต ON WORK ได้");
+          },
+        });
+      }
+      
+      // ตั้งค่าการแจ้งเตือน Telegram
+      function setupTelegramNotification() {
+        const token = $("#telegram-token").val().trim();
+        const chatId = $("#telegram-chatid").val().trim();
+        
+        if (!token || !chatId) {
+          showStatusMessage("กรุณากรอก Token และ Chat ID", "warning");
+          return;
+        }
+        
+        showLoading("กำลังตั้งค่าการแจ้งเตือน Telegram...");
+        
+        $.ajax({
+          url: scriptUrl,
+          type: "POST",
+          data: {
+            opt: "setupTelegram",
+            token: token,
+            chatId: chatId
+          },
+          success: function (response) {
+            hideLoading();
+            if (response.success) {
+              showResultModal("ตั้งค่าการแจ้งเตือนสำเร็จ", response.message);
+              // ล้างช่องกรอกข้อมูล
+              $("#telegram-token").val("");
+              $("#telegram-chatid").val("");
+            } else {
+              showResultModal("ไม่สามารถตั้งค่าการแจ้งเตือนได้", response.message);
+            }
+          },
+          error: function (error) {
+            hideLoading();
+            console.error("Error setting up Telegram:", error);
+            showResultModal("เกิดข้อผิดพลาด", "ไม่สามารถตั้งค่าการแจ้งเตือน Telegram ได้");
+          },
+        });
+      }
