@@ -259,6 +259,7 @@
 
     <!-- JavaScript -->
     <script>
+      // URL ของสคริปต์ Apps Script (ต้องเปลี่ยนเป็น URL ที่ได้จากการ deploy)
       // ตัวแปร global
       var scripturl =
         "https://script.google.com/macros/s/AKfycbxfq1tRERboFr2hbsA9P0i66A5Atjbp42M4AP4rSoOFGOo6ZZBxN3GfTOilYnu26VxtWw/exec";
@@ -275,62 +276,66 @@
         $("#clockout").click(ClockOut);
 
         // เริ่มต้นใช้งาน LIFF (LINE Frontend Framework)
-        if (typeof liff !== 'undefined') {
+        if (typeof liff !== "undefined") {
           initializeLiff();
         } else {
           // กรณีไม่มี LIFF SDK (เช่นเปิดใน browser ทั่วไป)
           console.log("LIFF SDK not available. Using default profile");
           lineProfile = {
             name: "Guest User",
-            picture: "https://via.placeholder.com/150"
+            picture: "https://via.placeholder.com/150",
           };
           initApp();
         }
 
         function initializeLiff() {
-          liff.init({
-            liffId: "2001032478-VR5Akj0k",
-            withLoginOnExternalBrowser: true,
-          })
-          .then(() => {
-            console.log("LIFF initialized successfully");
-            
-            if (liff.isLoggedIn()) {
-              // ดึงข้อมูลโปรไฟล์
-              return liff.getProfile();
-            } else {
-              console.log("User not logged in via LINE. Using default profile");
-              return Promise.resolve({
-                displayName: "Guest User",
-                pictureUrl: "https://via.placeholder.com/150"
-              });
-            }
-          })
-          .then((profile) => {
-            console.log("Profile retrieved:", profile);
-            
-            // เก็บข้อมูลโปรไฟล์ในตัวแปร global
-            lineProfile = {
-              name: profile.displayName || "Guest User",
-              picture: profile.pictureUrl || "https://via.placeholder.com/150"
-            };
-            
-            console.log("Line profile set:", lineProfile);
-            
-            // เริ่มต้นแอพหลังจากได้โปรไฟล์แล้ว
-            initApp();
-          })
-          .catch((err) => {
-            console.error("Error initializing LIFF:", err);
-            
-            // ใช้โปรไฟล์ทั่วไปในกรณีเกิดข้อผิดพลาด
-            lineProfile = {
-              name: "Guest User",
-              picture: "https://via.placeholder.com/150"
-            };
-            
-            initApp();
-          });
+          liff
+            .init({
+              liffId: "2001032478-VR5Akj0k",
+              withLoginOnExternalBrowser: true,
+            })
+            .then(() => {
+              console.log("LIFF initialized successfully");
+
+              if (liff.isLoggedIn()) {
+                // ดึงข้อมูลโปรไฟล์
+                return liff.getProfile();
+              } else {
+                console.log(
+                  "User not logged in via LINE. Using default profile"
+                );
+                return Promise.resolve({
+                  displayName: "Guest User",
+                  pictureUrl: "https://via.placeholder.com/150",
+                });
+              }
+            })
+            .then((profile) => {
+              console.log("Profile retrieved:", profile);
+
+              // เก็บข้อมูลโปรไฟล์ในตัวแปร global
+              lineProfile = {
+                name: profile.displayName || "Guest User",
+                picture:
+                  profile.pictureUrl || "https://via.placeholder.com/150",
+              };
+
+              console.log("Line profile set:", lineProfile);
+
+              // เริ่มต้นแอพหลังจากได้โปรไฟล์แล้ว
+              initApp();
+            })
+            .catch((err) => {
+              console.error("Error initializing LIFF:", err);
+
+              // ใช้โปรไฟล์ทั่วไปในกรณีเกิดข้อผิดพลาด
+              lineProfile = {
+                name: "Guest User",
+                picture: "https://via.placeholder.com/150",
+              };
+
+              initApp();
+            });
         }
       });
 
@@ -357,11 +362,11 @@
               });
             });
           },
-          error: function(err) {
+          error: function (err) {
             console.error("Error fetching employee data:", err);
             $("#message").html("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
             document.getElementById("message").className = "alert alert-danger";
-          }
+          },
         });
 
         getEmployees();
@@ -393,9 +398,9 @@
               employeeSelect.appendChild(option);
             });
           },
-          error: function(err) {
+          error: function (err) {
             console.error("Error fetching employees list:", err);
-          }
+          },
         });
       }
 
@@ -525,7 +530,7 @@
             console.log("No LINE profile available, using default");
             lineProfile = {
               name: "Guest User",
-              picture: "https://via.placeholder.com/150"
+              picture: "https://via.placeholder.com/150",
             };
           }
 
@@ -542,7 +547,7 @@
               lat: gps[0],
               lon: gps[1],
               line_name: lineProfile.name,
-              line_picture: lineProfile.picture
+              line_picture: lineProfile.picture,
             },
             success: function (res) {
               console.log("ClockIn response:", res);
@@ -656,7 +661,7 @@
             console.log("No LINE profile available, using default");
             lineProfile = {
               name: "Guest User",
-              picture: "https://via.placeholder.com/150"
+              picture: "https://via.placeholder.com/150",
             };
           }
 
@@ -672,7 +677,7 @@
               lat: gps[0],
               lon: gps[1],
               line_name: lineProfile.name,
-              line_picture: lineProfile.picture
+              line_picture: lineProfile.picture,
             },
             success: function (res) {
               console.log("ClockOut response:", res);
@@ -805,7 +810,7 @@
           var lon = data.longitude;
           gps = [lat, lon];
           console.log("Latitude from API: " + lat + " Longitude: " + lon);
-        }).fail(function() {
+        }).fail(function () {
           console.log("Failed to get location from API, using default");
           gps = [13.7563, 100.5018]; // พิกัดเริ่มต้น (กรุงเทพฯ)
         });
@@ -844,6 +849,12 @@
 
         setTimeout(showTime, 1000);
       }
+
+      showTime();
     </script>
+    <script
+      charset="utf-8"
+      src="https://static.line-scdn.net/liff/edge/2/sdk.js"
+    ></script>
   </body>
 </html>
