@@ -259,77 +259,113 @@
 
     <!-- JavaScript -->
     <script>
-      // URL ของสคริปต์ Apps Script (ต้องเปลี่ยนเป็น URL ที่ได้จากการ deploy)
+      // ตัวแปร global
       var scripturl =
         "https://script.google.com/macros/s/AKfycbxfq1tRERboFr2hbsA9P0i66A5Atjbp42M4AP4rSoOFGOo6ZZBxN3GfTOilYnu26VxtWw/exec";
       var owner = "องค์การบริหารส่วนตำบล";
-
-      // ตัวแปร global
-      var profile, gps;
+      var lineProfile = null; // เก็บข้อมูลโปรไฟล์ LINE
+      var gps = [0, 0]; // เก็บพิกัด GPS
 
       // ดึงตำแหน่ง GPS
-      $.when(getlocation()).done(function (res) {
-        console.log("GPS:", gps);
-      });
+      getlocation();
 
       $(document).ready(function () {
-        // ประกาศตัวแปร profile ที่ระดับสูงกว่า
-        let profile = null;
-
         // ตั้งค่าการทำงานของปุ่ม
-        $("#clockin").click(() => ClockIn());
-        $("#clockout").click(() => ClockOut());
+        $("#clockin").click(ClockIn);
+        $("#clockout").click(ClockOut);
 
         // เริ่มต้นใช้งาน LIFF (LINE Frontend Framework)
-        liff.init({
-          liffId: "2001032478-VR5Akj0k",
-          withLoginOnExternalBrowser: true,
-        });
-
-        liff.ready.then(() => {
-          // ดึงข้อมูลโปรไฟล์
-          profile = liff.getDecodedIDToken();
-
-          if (profile) {
-            console.log("User ID (sub):", profile.sub);
-            console.log("Display Name (name):", profile.name);
-            console.log("Email:", profile.email || "ไม่พบอีเมล");
-            console.log("Picture URL:", profile.picture || "ไม่พบรูปโปรไฟล์");
-          } else {
-            console.log("โปรไฟล์ยังไม่พร้อมใช้งานหรือไม่มีข้อมูลโปรไฟล์");
-          }
-
-          // เรียกฟังก์ชัน initApp หลังจากได้โปรไฟล์แล้ว
+        if (typeof liff !== 'undefined') {
+          initializeLiff();
+        } else {
+          // กรณีไม่มี LIFF SDK (เช่นเปิดใน browser ทั่วไป)
+          console.log("LIFF SDK not available. Using default profile");
+          lineProfile = {
+            name: "Guest User",
+            picture: "https://via.placeholder.com/150"
+          };
           initApp();
-        });
+        }
 
-        function initApp() {
-          // แสดงชื่อองค์กร
-          document.getElementById("message").innerText = owner;
-          document.getElementById("message").className = "alert msgBg";
-
-          // ดึงข้อมูลพนักงานมาแสดงในแถบเลือกรายการ
-          $.ajax({
-            method: "POST",
-            url: scripturl,
-            data: {
-              opt: "getdata",
-            },
-            success: function (dataPerson) {
-              console.log("Employee data:", dataPerson);
-              $(function () {
-                var availableTags = dataPerson;
-                $("#employee").autocomplete({
-                  maxShowItems: 3,
-                  source: availableTags,
-                });
+        function initializeLiff() {
+          liff.init({
+            liffId: "2001032478-VR5Akj0k",
+            withLoginOnExternalBrowser: true,
+          })
+          .then(() => {
+            console.log("LIFF initialized successfully");
+            
+            if (liff.isLoggedIn()) {
+              // ดึงข้อมูลโปรไฟล์
+              return liff.getProfile();
+            } else {
+              console.log("User not logged in via LINE. Using default profile");
+              return Promise.resolve({
+                displayName: "Guest User",
+                pictureUrl: "https://via.placeholder.com/150"
               });
-            },
+            }
+          })
+          .then((profile) => {
+            console.log("Profile retrieved:", profile);
+            
+            // เก็บข้อมูลโปรไฟล์ในตัวแปร global
+            lineProfile = {
+              name: profile.displayName || "Guest User",
+              picture: profile.pictureUrl || "https://via.placeholder.com/150"
+            };
+            
+            console.log("Line profile set:", lineProfile);
+            
+            // เริ่มต้นแอพหลังจากได้โปรไฟล์แล้ว
+            initApp();
+          })
+          .catch((err) => {
+            console.error("Error initializing LIFF:", err);
+            
+            // ใช้โปรไฟล์ทั่วไปในกรณีเกิดข้อผิดพลาด
+            lineProfile = {
+              name: "Guest User",
+              picture: "https://via.placeholder.com/150"
+            };
+            
+            initApp();
           });
-
-          getEmployees();
         }
       });
+
+      // ฟังก์ชั่นเริ่มต้นแอปพลิเคชัน
+      function initApp() {
+        // แสดงชื่อองค์กร
+        document.getElementById("message").innerText = owner;
+        document.getElementById("message").className = "alert msgBg";
+
+        // ดึงข้อมูลพนักงานมาแสดงในแถบเลือกรายการ
+        $.ajax({
+          method: "POST",
+          url: scripturl,
+          data: {
+            opt: "getdata",
+          },
+          success: function (dataPerson) {
+            console.log("Employee data:", dataPerson);
+            $(function () {
+              var availableTags = dataPerson;
+              $("#employee").autocomplete({
+                maxShowItems: 3,
+                source: availableTags,
+              });
+            });
+          },
+          error: function(err) {
+            console.error("Error fetching employee data:", err);
+            $("#message").html("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+            document.getElementById("message").className = "alert alert-danger";
+          }
+        });
+
+        getEmployees();
+      }
 
       // ฟังก์ชั่นดึงข้อมูลพนักงาน
       function getEmployees() {
@@ -342,19 +378,24 @@
           success: function (ar) {
             var employeeSelect = document.getElementById("employee");
 
+            // รีเซ็ตตัวเลือกเดิม
+            $("#employee").empty();
+
             let option = document.createElement("option");
             option.value = "";
             option.text = "";
             employeeSelect.appendChild(option);
 
-            ar.forEach(function (item, index) {
+            ar.forEach(function (item) {
               let option = document.createElement("option");
-              var employee = item[0];
               option.value = item[0];
               option.text = item[0];
               employeeSelect.appendChild(option);
             });
           },
+          error: function(err) {
+            console.error("Error fetching employees list:", err);
+          }
         });
       }
 
@@ -400,12 +441,12 @@
               } วินาที</div>
               <div class="progress mt-2">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
-                     style="width: ${Math.round(
-                       100 - (status.position / status.total) * 100
-                     )}%" 
-                     aria-valuenow="${
-                       status.position
-                     }" aria-valuemin="0" aria-valuemax="${status.total}"></div>
+                    style="width: ${Math.round(
+                      100 - (status.position / status.total) * 100
+                    )}%" 
+                    aria-valuenow="${
+                      status.position
+                    }" aria-valuemin="0" aria-valuemax="${status.total}"></div>
               </div>
             </div>
           `;
@@ -468,8 +509,8 @@
       }
 
       // ฟังก์ชัน Clock In
-      async function ClockIn() {
-        event.preventDefault();
+      function ClockIn(event) {
+        if (event) event.preventDefault();
 
         var employee = document.getElementById("employee").value;
         var userinfo = document.getElementById("userinfo").value;
@@ -479,7 +520,16 @@
             "<span class='spinner-border spinner-border-sm text-primary'></span> กำลังตรวจสอบคิว..."
           );
 
-          profile = liff.getDecodedIDToken(); // ดึงข้อมูลโปรไฟล์
+          // ตรวจสอบว่ามีข้อมูลโปรไฟล์หรือไม่
+          if (!lineProfile) {
+            console.log("No LINE profile available, using default");
+            lineProfile = {
+              name: "Guest User",
+              picture: "https://via.placeholder.com/150"
+            };
+          }
+
+          console.log("Using profile for ClockIn:", lineProfile);
 
           // เรียกใช้ฟังก์ชัน clockin ที่มีระบบคิว
           $.ajax({
@@ -487,15 +537,15 @@
             url: scripturl,
             data: {
               opt: "clockin",
-              employee,
-              userinfo,
+              employee: employee,
+              userinfo: userinfo,
               lat: gps[0],
               lon: gps[1],
-              line_name: profile.name,
-              line_picture: profile.picture,
+              line_name: lineProfile.name,
+              line_picture: lineProfile.picture
             },
             success: function (res) {
-              console.log(res);
+              console.log("ClockIn response:", res);
 
               // ถ้าอยู่ในคิว
               if (res.msg === "QUEUED") {
@@ -514,12 +564,12 @@
                     } วินาที</div>
                     <div class="progress mt-2">
                       <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
-                           style="width: ${Math.round(
-                             100 - (res.position / res.total) * 100
-                           )}%" 
-                           aria-valuenow="${
-                             res.position
-                           }" aria-valuemin="0" aria-valuemax="${
+                          style="width: ${Math.round(
+                            100 - (res.position / res.total) * 100
+                          )}%" 
+                          aria-valuenow="${
+                            res.position
+                          }" aria-valuemin="0" aria-valuemax="${
                   res.total
                 }"></div>
                     </div>
@@ -575,6 +625,7 @@
               }
             },
             error: function (err) {
+              console.error("ClockIn error:", err);
               $("#message").html("เกิดข้อผิดพลาดในการติดต่อกับเซิร์ฟเวอร์");
               document.getElementById("message").className =
                 "alert alert-danger";
@@ -590,8 +641,8 @@
       }
 
       // ฟังก์ชัน Clock Out
-      async function ClockOut() {
-        event.preventDefault();
+      function ClockOut(event) {
+        if (event) event.preventDefault();
 
         var employee = document.getElementById("employee").value;
 
@@ -600,7 +651,16 @@
             "<span class='spinner-border spinner-border-sm text-warning'></span> กำลังตรวจสอบคิว..."
           );
 
-          profile = liff.getDecodedIDToken(); // ดึงข้อมูลโปรไฟล์
+          // ตรวจสอบว่ามีข้อมูลโปรไฟล์หรือไม่
+          if (!lineProfile) {
+            console.log("No LINE profile available, using default");
+            lineProfile = {
+              name: "Guest User",
+              picture: "https://via.placeholder.com/150"
+            };
+          }
+
+          console.log("Using profile for ClockOut:", lineProfile);
 
           // เรียกใช้ฟังก์ชัน clockout ที่มีระบบคิว
           $.ajax({
@@ -608,14 +668,14 @@
             url: scripturl,
             data: {
               opt: "clockout",
-              employee,
+              employee: employee,
               lat: gps[0],
               lon: gps[1],
-              line_name: profile.name,
-              line_picture: profile.picture,
+              line_name: lineProfile.name,
+              line_picture: lineProfile.picture
             },
             success: function (res) {
-              console.log(res);
+              console.log("ClockOut response:", res);
 
               // ถ้าอยู่ในคิว
               if (res.msg === "QUEUED") {
@@ -634,12 +694,12 @@
                     } วินาที</div>
                     <div class="progress mt-2">
                       <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
-                           style="width: ${Math.round(
-                             100 - (res.position / res.total) * 100
-                           )}%" 
-                           aria-valuenow="${
-                             res.position
-                           }" aria-valuemin="0" aria-valuemax="${
+                          style="width: ${Math.round(
+                            100 - (res.position / res.total) * 100
+                          )}%" 
+                          aria-valuenow="${
+                            res.position
+                          }" aria-valuemin="0" aria-valuemax="${
                   res.total
                 }"></div>
                     </div>
@@ -695,6 +755,7 @@
               }
             },
             error: function (err) {
+              console.error("ClockOut error:", err);
               $("#message").html("เกิดข้อผิดพลาดในการติดต่อกับเซิร์ฟเวอร์");
               document.getElementById("message").className =
                 "alert alert-danger";
@@ -725,6 +786,8 @@
           );
         } else {
           console.log("Geolocation is not supported by this browser.");
+          // กำหนดพิกัดเริ่มต้นในกรณีที่ไม่สามารถใช้ GPS ได้
+          gps = [13.7563, 100.5018]; // พิกัดเริ่มต้น (กรุงเทพฯ)
         }
       }
 
@@ -736,11 +799,15 @@
       }
 
       function getLocationFromApi() {
+        console.log("Using fallback location API");
         $.getJSON("https://ipapi.co/json/", function (data) {
           var lat = data.latitude;
           var lon = data.longitude;
           gps = [lat, lon];
           console.log("Latitude from API: " + lat + " Longitude: " + lon);
+        }).fail(function() {
+          console.log("Failed to get location from API, using default");
+          gps = [13.7563, 100.5018]; // พิกัดเริ่มต้น (กรุงเทพฯ)
         });
       }
 
@@ -759,12 +826,12 @@
         var h = date.getHours(); // 0 - 23
         var m = date.getMinutes(); // 0 - 59
         var s = date.getSeconds(); // 0 - 59
-        var dot = (document.textContent = ".");
+        var dot = "";
 
         if (s % 2 == 1) {
-          dot = document.textContent = ".";
+          dot = ".";
         } else {
-          dot = document.textContent = "\xa0";
+          dot = "\xa0";
         }
 
         h = h < 10 ? "0" + h : h;
@@ -777,12 +844,6 @@
 
         setTimeout(showTime, 1000);
       }
-
-      showTime();
     </script>
-    <script
-      charset="utf-8"
-      src="https://static.line-scdn.net/liff/edge/2/sdk.js"
-    ></script>
   </body>
 </html>
