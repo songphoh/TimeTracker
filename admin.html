@@ -860,6 +860,67 @@
           },
         });
       }
+      // แสดงข้อความสถานะ
+      function showStatusMessage(message, type) {
+        $("#status-message").html(message);
+        $("#status-message").removeClass().addClass(`alert alert-${type}`).show();
+        
+        // ซ่อนข้อความหลังจาก 5 วินาที
+        setTimeout(() => {
+          $("#status-message").fadeOut();
+        }, 5000);
+      }
+      
+      // แสดงข้อความใน Modal
+      function showResultModal(title, message) {
+        $("#resultModalLabel").text(title);
+        $("#resultModalBody").html(message);
+        
+        // เปิด Modal
+        new bootstrap.Modal(document.getElementById('resultModal')).show();
+      }
+      
+      // แสดงข้อความกำลังโหลด
+      function showLoading(message) {
+        $("#status-message").html(`
+          <div class="d-flex align-items-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>${message}</span>
+          </div>
+        `);
+        $("#status-message").removeClass().addClass("alert alert-info").show();
+      }
+      
+      // ซ่อนข้อความกำลังโหลด
+      function hideLoading() {
+        $("#status-message").fadeOut();
+      }
+      
+      // เตรียมข้อมูลเมื่อโหลดหน้า
+      $(document).ready(function() {
+        // เติมข้อมูลปีในตัวเลือก
+        const currentYear = new Date().getFullYear();
+        const yearSelect = $("#report-year");
+        
+        // เติมตัวเลือกปีย้อนหลัง 5 ปี และล่วงหน้า 1 ปี
+        for (let i = currentYear - 5; i <= currentYear + 1; i++) {
+          yearSelect.append($('<option>', {
+            value: i,
+            text: i,
+            selected: i === currentYear
+          }));
+        }
+        
+        // กำหนดเดือนปัจจุบันเป็นค่าเริ่มต้น
+        $("#report-month").val(new Date().getMonth());
+        
+        // โหลดข้อมูลคิวเมื่อเริ่มต้น
+        fetchQueueData();
+        
+        // กำหนดให้รีเฟรชข้อมูลทุก 30 วินาที
+        setInterval(fetchQueueData, 30000);
+      });
+              
     ></script>
   </body>
 </html>
